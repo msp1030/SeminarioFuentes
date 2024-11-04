@@ -1,0 +1,30 @@
+AXIS-VERSION="2006";
+CREATION-DATE="20240930";
+CHARSET="ANSI";
+SUBJECT-AREA="Estado de salud y enfermedades diagnosticadas";
+SUBJECT-CODE="null";
+MATRIX="0702104";
+TITLE="Enfermedades crónicas diagnosticadas por CCAA y sexo. Población de 6 y más años con discapacidad.";
+CONTENTS="Enfermedades crónicas diagnosticadas";
+CODEPAGE="iso-8859-15";
+DESCRIPTION="";
+COPYRIGHT=YES;
+NOTE="1) Una persona puede tener más de una enfermedad crónica diagnosticada";
+DECIMALS=2;
+SHOWDECIMALS=2;
+STUB="Comunidades y Ciudades Autónomas","Sexo";
+HEADING="Enfermedades";
+VALUES("Comunidades y Ciudades Autónomas")="Total Nacional","01 Andalucía","02 Aragón","03 Asturias, Principado de",
+"04 Balears, Illes","05 Canarias","06 Cantabria","07 Castilla y León",
+"08 Castilla - La Mancha","09 Cataluña","10 Comunitat Valenciana","11 Extremadura",
+"12 Galicia","13 Madrid, Comunidad de","14 Murcia, Región de",
+"15 Navarra, Comunidad Foral de","16 País Vasco","17 Rioja, La","18 Ceuta",
+"19 Melilla";
+VALUES("Sexo")="Total";
+VALUES("Enfermedades")="Alzheimer";
+CODES("Comunidades y Ciudades Autónomas")="","CA01","CA02","CA03","CA04","CA05","CA06","CA07","CA08","CA09","CA10","CA11","CA12","CA13",
+"CA14","CA15","CA16","CA17","CA18","CA19";
+MAP("Comunidades y Ciudades Autónomas")="spain_regions_img_ind";
+SOURCE="Instituto Nacional de Estadística";
+UNITS="porcentaje";
+DATA=5.55 5.55 4.72 5.7 6.13 6.3 4.62 4.88 6.0 5.67 5.62 4.46 7.42 4.84 3.33 3.99 6.45 7.68 0.0 4.39;
