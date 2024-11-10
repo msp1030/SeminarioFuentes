@@ -5,9 +5,9 @@ library(pxR)
 library(dplyr)
 #carga de datos
 
-zonas_verdes <- pxR::read.px("data/zonas_verdes.px")$DATA#carga un archivo con datos sobre las zonas verdes
+zonas_verdes <- read.px("data/zonas_verdes.px")$DATA#carga un archivo con datos sobre las zonas verdes
 
-alzheimer <- pxR::read.px("data/alzheimer_total.px")$DATA#carga un achivo con datos sobre el alzheimer
+alzheimer <- read.px("data/alzheimer_total.px")$DATA#carga un achivo con datos sobre el alzheimer
 
 data("airqES")#carga el conjunto de datos con información sobre la calidad del aire en España
 
@@ -44,12 +44,11 @@ calidad_aire <- airqES %>%
 #quitamos los valores de zonas_verdes que no se centran en provincias
 zonas_verdes_df <- zonas_verdes$value
 zonas_verdes_df<-zonas_verdes_df[-c(1,2,3,4,5), ]#eliminamos las filas 1, 2, 3, 4 y 5
-view(zonas_verdes_df)
+zonas_verdes_df
 
 print(colnames(zonas_verdes_df))
 
-view(alzheimer)
 alzheimer_df<-alzheimer$value
 alzheimer_df<-alzheimer_df[,-c(1,2)]#eliminamos las columnas 1 y 2 
-view(alzheimer_df)
+alzheimer_df
 print(colnames(alzheimer_df))

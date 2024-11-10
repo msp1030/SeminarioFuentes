@@ -1,0 +1,74 @@
+---
+title: "Relación entre Alzheimer y Calidad del Aire y Zonas Verdes"
+author: "Manuel Sánchez Paredes y Santiago Herrero Ruipérez"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Introducción
+
+En este seminario se va a estudiar la relación entre la calidad del aire y las zonas verdes en poblaciones y el Alzheimer.
+
+Los datos respecto al Alzheimer y a las zonas verdes se han obtenido del Instututo Nacional de Estadística (INE), mientras que los datos de la calidad del aire se han obtenido mediante el paquete `airqES` del proyecto `ROpenSpain`.
+
+## Carga de Librerías empleadas
+
+```{r, message=FALSE, warning=FALSE}
+library(airqualityES)
+library(pxR)
+library(tidyverse)
+```
+
+## Carga de Datos
+
+### Carga de Zonas Verdes
+
+Los datos de las zonas verdes se encuentran en formato PC-AXIS, por lo que se emplea el paquete `pxR` para leer los datos.
+
+```{r}
+zonas_verdes <- read.px("data/zonas_verdes.px")$DATA
+zonas_verdes_df <- zonas_verdes$value
+zonas_verdes_df<-zonas_verdes_df[-c(1,2,3,4,5), ]#eliminamos las filas 1, 2, 3, 4 y 5
+zonas_verdes_df
+```
+
+### Carga de Alzheimer
+
+Los datos de Alzheimer, al igual que los datos de zonas verdes se encuentran en formato PC-AXIS, por lo que se emplea el paquete `pxR` para leer los datos.
+
+```{r}
+alzheimer <- read.px("data/alzheimer_total.px")$DATA
+alzheimer_df<-alzheimer$value
+alzheimer_df<-alzheimer_df[,-c(1,2)]#eliminamos las columnas 1 y 2 
+alzheimer_df
+```
+
+### Carga de Calidad del Aire
+
+La tabla con los datos de la Calidad del Aire se encuentra cargada por el paquete `airqES`.
+
+```{r}
+data("airqES")
+```
+
+## Modificación y Creación de las Tablas
+
+### Modificación de Zonas Verdes
+
+### Modificación de Alzheimer
+
+### Modificación de Calidad del Aire
+
+```{r}
+calidad_aire <- airqES %>%
+  filter(year == 2018) %>%#filtra el airqES para el año 2018
+  mutate(media_mensual = apply(.[, c(8:38)], 1, mean, na.rm = TRUE))%>%#creamos una columna llamada media_mensual, se calcula la media de las columnas 8-38 por cada fila (evitando los valores NA) 
+  select(month, province, station_id, pollutant, media_mensual)#se filtran las columnas month, province, station_id, pullutant y media_mensual
+```
