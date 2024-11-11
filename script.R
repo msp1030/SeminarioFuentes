@@ -52,3 +52,38 @@ alzheimer_df<-alzheimer$value
 alzheimer_df<-alzheimer_df[,-c(1,2)]#eliminamos las columnas 1 y 2 
 alzheimer_df
 print(colnames(alzheimer_df))
+
+
+
+#pivotar zonas verdes
+view(zonas_verdes_df)
+wide_zonas_verdes<-
+  zonas_verdes_df%>%
+  pivot_wider(names_from = "Nivel.de.satisfacción", values_from = "value")
+view(wide_zonas_verdes)
+view(calidad_aire)
+
+#pivotar calidad_aire
+wide_calida_aire<-
+  calidad_aire%>%
+  pivot_wider(names_from = "month", values_from = "media_mensual")%>%
+  #rename(1:12 = c("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"))
+view(calidad_aire)
+view(wide_calida_aire)
+
+
+
+alzheimer_zonas_verdes<-left_join(x = alzheimer_df, y = wide_zonas_verdes, by = c("Comunidades.y.Ciudades.Autónomas")) 
+view(alzheimer_zonas_verdes)
+  
+
+
+
+
+
+
+
+
+
+
+
