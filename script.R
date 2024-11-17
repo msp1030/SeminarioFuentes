@@ -63,8 +63,6 @@ wide_zonas_verdes<-
 view(wide_zonas_verdes)
 view(calidad_aire)
 
-#pivotar calidad_aire
-view(calidad_aire)
 
 
 
@@ -79,8 +77,18 @@ meses<-c("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
 calidad_aire$month<-meses[calidad_aire$month]
 view(calidad_aire)
 
-
-
+#creamos un vector con los nombres de las provincias
+provincias<-c("Álava", "Albacete", "Alicante", "Almería", "Asturias", "Ávila", 
+                "Badajoz", "Barcelona", "Burgos", "Cáceres", "Cádiz", "Cantabria", 
+                "Castellón", "Ciudad Real", "Córdoba", "Cuenca", "Girona", "Granada", 
+                "Guadalajara", "Gipuzkoa", "Huelva", "Huesca", "Islas Baleares", 
+                "Jaén", "La Rioja", "Las Palmas", "León", "Lleida", "Madrid", 
+                "Málaga", "Murcia", "Navarra", "Ourense", "Palencia", "Pontevedra", 
+                "Salamanca", "Santa Cruz de Tenerife", "Segovia", "Sevilla", "Soria", 
+                "Tarragona", "Teruel", "Toledo", "Valencia", "Valladolid", "Vizcaya", 
+                "Zamora", "Zaragoza")
+calidad_aire$province<-provincias[calidad_aire$province]
+view(calidad_aire)
 
 
 
