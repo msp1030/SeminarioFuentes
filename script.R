@@ -64,22 +64,20 @@ view(wide_zonas_verdes)
 view(calidad_aire)
 
 #pivotar calidad_aire
-wide_calida_aire<-
-  calidad_aire%>%
-  pivot_wider(names_from = "month", values_from = "media_mensual")%>%
-  #rename(1:12 = c("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"))
 view(calidad_aire)
-view(wide_calida_aire)
 
 
 
 alzheimer_zonas_verdes<-left_join(x = alzheimer_df, y = wide_zonas_verdes, by = c("Comunidades.y.Ciudades.Autónomas")) 
 view(alzheimer_zonas_verdes)
-  
 
 
-
-
+#creamos un vector con los nombres de los meses
+meses<-c("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+         "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre")
+#remplazamos los meses en la tabla
+calidad_aire$month<-meses[calidad_aire$month]
+view(calidad_aire)
 
 
 
