@@ -40,6 +40,7 @@ calidad_aire <- airqES %>%
   filter(year == 2018) %>%#filtra el airqES para el año 2018
   mutate(media_mensual = apply(.[, c(8:38)], 1, mean, na.rm = TRUE))%>%#creamos una columna llamada media_mensual, se calcula la media de las columnas 8-38 por cada fila (evitando los valores NA) 
   select(month, province, station_id, pollutant, media_mensual)#se filtran las columnas month, province, station_id, pullutant y media_mensual
+view(calidad_aire)
 
 #quitamos los valores de zonas_verdes que no se centran en provincias
 zonas_verdes_df <- zonas_verdes$value
@@ -56,18 +57,15 @@ print(colnames(alzheimer_df))
 
 
 #pivotar zonas verdes
-view(zonas_verdes_df)
 wide_zonas_verdes<-
   zonas_verdes_df%>%
   pivot_wider(names_from = "Nivel.de.satisfacción", values_from = "value")
-view(wide_zonas_verdes)
-view(calidad_aire)
 
 
 
 
 alzheimer_zonas_verdes<-left_join(x = alzheimer_df, y = wide_zonas_verdes, by = c("Comunidades.y.Ciudades.Autónomas")) 
-view(alzheimer_zonas_verdes)
+
 
 
 #creamos un vector con los nombres de los meses
@@ -75,21 +73,38 @@ meses<-c("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
          "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre")
 #remplazamos los meses en la tabla
 calidad_aire$month<-meses[calidad_aire$month]
-view(calidad_aire)
+
 
 #creamos un vector con los nombres de las provincias
-provincias<-c("Álava", "Albacete", "Alicante", "Almería", "Asturias", "Ávila", 
-                "Badajoz", "Barcelona", "Burgos", "Cáceres", "Cádiz", "Cantabria", 
-                "Castellón", "Ciudad Real", "Córdoba", "Cuenca", "Girona", "Granada", 
-                "Guadalajara", "Gipuzkoa", "Huelva", "Huesca", "Islas Baleares", 
-                "Jaén", "La Rioja", "Las Palmas", "León", "Lleida", "Madrid", 
-                "Málaga", "Murcia", "Navarra", "Ourense", "Palencia", "Pontevedra", 
-                "Salamanca", "Santa Cruz de Tenerife", "Segovia", "Sevilla", "Soria", 
-                "Tarragona", "Teruel", "Toledo", "Valencia", "Valladolid", "Vizcaya", 
-                "Zamora", "Zaragoza")
-calidad_aire$province<-provincias[calidad_aire$province]
-view(calidad_aire)
+provincia = c("Alava","Albacete","Alicante","Almeria","Avila", "Badajoz", "Baleares", "Barcelona", "Burgos", "Caceres", "Cadiz", "Castellon","Ciudad Real","Cordoba","Coruña","Cuenca","Girona","Granada","Guadalajara","Gipuzkoa","Huelva","Huesca","Jaen","Leon","Lleida","Rioja","Lugo","Madrid","Málaga","Murcia","Navarra","Ourense","Asturias","Palencia","Palmas","Pontevedra","Salamanca","Santa_Cruz_de_Tenerife","Cantabria","Segovia","Sevilla","Soria","Tarragona","Teruel","Toledo","Valencia","Valladolid","Bizkaia","Zamora","Zaragoza")
+factor(provincias)
 
 
 
+calidad_aire$province<-provincia[calidad_aire$province]
 
+print(calidad_aire)
+
+wide_calidad_aire<-
+  calidad_aire%>%
+  pivot_wider(names_from = "month", values_from = "media_mensual")
+
+
+#agrupar meses
+wide_calidad_aire<-
+  wide_calidad_aire%>%
+  mutate(media_anual = apply(.[, c(4:15)], 1, mean, na.rm = TRUE))
+
+
+#quitamos los datos por meses
+wide_calidad_aire<-wide_calidad_aire[,-c(4:15)]
+
+#quitamos los datos a de ceuta, melilla y los de nivel nacional de alzheimer_xonas_verdes
+alzheimer_zonas_verdes<-alzheimer_zonas_verdes[-c(1,19,20),]
+
+
+
+view(wide_calidad_aire)
+view(alzheimer_df)
+view(zonas_verdes_df)
+view(alzheimer_zonas_verdes)
