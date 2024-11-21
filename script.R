@@ -40,18 +40,16 @@ calidad_aire <- airqES %>%
   filter(year == 2018) %>%#filtra el airqES para el año 2018
   mutate(media_mensual = apply(.[, c(8:38)], 1, mean, na.rm = TRUE))%>%#creamos una columna llamada media_mensual, se calcula la media de las columnas 8-38 por cada fila (evitando los valores NA) 
   select(month, province, station_id, pollutant, media_mensual)#se filtran las columnas month, province, station_id, pullutant y media_mensual
-view(calidad_aire)
+
 
 #quitamos los valores de zonas_verdes que no se centran en provincias
 zonas_verdes_df <- zonas_verdes$value
 zonas_verdes_df<-zonas_verdes_df[-c(1,2,3,4,5), ]#eliminamos las filas 1, 2, 3, 4 y 5
-zonas_verdes_df
 
-print(colnames(zonas_verdes_df))
 
 alzheimer_df<-alzheimer$value
 alzheimer_df<-alzheimer_df[,-c(1,2)]#eliminamos las columnas 1 y 2 
-alzheimer_df
+
 print(colnames(alzheimer_df))
 
 
@@ -118,12 +116,27 @@ view(alzheimer_zonas_verdes)
 wide_calidad_aire <- wide_calidad_aire %>%
   mutate(exceso_limite = case_when(
     pollutant == "PM10" & media_anual > 40 ~ "Sí",
-    pollutant == "PM2,5" & media_anual > 25 ~ "Sí",
+    pollutant == "PM2.5" & media_anual > 25 ~ "Sí",
     pollutant == "Pb" & media_anual > 0.5 ~ "Sí",
-    pollutant == "AS" & media_anual > 6 ~ "Sí",
+    pollutant == "As" & media_anual > 6 ~ "Sí",
     pollutant == "Cd" & media_anual > 5 ~ "Sí",
     pollutant == "Ni" & media_anual > 20 ~ "Sí",
     pollutant == "B(a)P" & media_anual > 1 ~ "Sí",
     TRUE ~ "No"
   ))
+wide_calidad_aire <- wide_calidad_aire %>%
+  mutate(
+    porcentaje = case_when(
+      !is.na(media_anual) & pollutant == "PM10" ~ (media_anual / 40) * 100,
+      !is.na(media_anual) & pollutant == "PM2.5" ~ (media_anual / 25) * 100,
+      !is.na(media_anual) & pollutant == "Pb" ~ (media_anual / 0.5) * 100,
+      !is.na(media_anual) & pollutant == "As" ~ (media_anual / 6) * 100,
+      !is.na(media_anual) & pollutant == "Cd" ~ (media_anual / 5) * 100,
+      !is.na(media_anual) & pollutant == "Ni" ~ (media_anual / 20) * 100,
+      !is.na(media_anual) & pollutant == "B(a)P" ~ (media_anual / 1) * 100,
+      TRUE ~ NA_real_
+    )
+  )
+
+
 view(wide_calidad_aire)
