@@ -64,7 +64,7 @@ wide_zonas_verdes<-
 
 
 
-alzheimer_zonas_verdes<-left_join(x = alzheimer_df, y = wide_zonas_verdes, by = c("Comunidades.y.Ciudades.Autónomas")) 
+#alzheimer_zonas_verdes<-left_join(x = alzheimer_df, y = wide_zonas_verdes, by = c("Comunidades.y.Ciudades.Autónomas")) 
 
 
 
@@ -100,11 +100,30 @@ wide_calidad_aire<-
 wide_calidad_aire<-wide_calidad_aire[,-c(4:15)]
 
 #quitamos los datos a de ceuta, melilla y los de nivel nacional de alzheimer_xonas_verdes
-alzheimer_zonas_verdes<-alzheimer_zonas_verdes[-c(1,19,20),]
+
 
 
 
 view(wide_calidad_aire)
 view(alzheimer_df)
-view(zonas_verdes_df)
+view(wide_zonas_verdes)
+#eliminamos algunas columnas de valoracion
+wide_zonas_verdes<-wide_zonas_verdes[,-c(2:5)]
+
+alzheimer_zonas_verdes<-left_join(x = alzheimer_df, y = wide_zonas_verdes, by = c("Comunidades.y.Ciudades.Autónomas")) 
 view(alzheimer_zonas_verdes)
+alzheimer_zonas_verdes<-alzheimer_zonas_verdes[-c(1),]
+view(alzheimer_zonas_verdes)
+
+wide_calidad_aire <- wide_calidad_aire %>%
+  mutate(exceso_limite = case_when(
+    pollutant == "PM10" & media_anual > 40 ~ "Sí",
+    pollutant == "PM2,5" & media_anual > 25 ~ "Sí",
+    pollutant == "Pb" & media_anual > 0.5 ~ "Sí",
+    pollutant == "AS" & media_anual > 6 ~ "Sí",
+    pollutant == "Cd" & media_anual > 5 ~ "Sí",
+    pollutant == "Ni" & media_anual > 20 ~ "Sí",
+    pollutant == "B(a)P" & media_anual > 1 ~ "Sí",
+    TRUE ~ "No"
+  ))
+view(wide_calidad_aire)
