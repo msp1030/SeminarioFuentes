@@ -114,17 +114,6 @@ alzheimer_zonas_verdes<-alzheimer_zonas_verdes[-c(1),]
 view(alzheimer_zonas_verdes)
 
 wide_calidad_aire <- wide_calidad_aire %>%
-  mutate(exceso_limite = case_when(
-    pollutant == "PM10" & media_anual > 40 ~ "Sí",
-    pollutant == "PM2.5" & media_anual > 25 ~ "Sí",
-    pollutant == "Pb" & media_anual > 0.5 ~ "Sí",
-    pollutant == "As" & media_anual > 6 ~ "Sí",
-    pollutant == "Cd" & media_anual > 5 ~ "Sí",
-    pollutant == "Ni" & media_anual > 20 ~ "Sí",
-    pollutant == "B(a)P" & media_anual > 1 ~ "Sí",
-    TRUE ~ "No"
-  ))
-wide_calidad_aire <- wide_calidad_aire %>%
   mutate(
     porcentaje = case_when(
       !is.na(media_anual) & pollutant == "PM10" ~ (media_anual / 40) * 100,
@@ -139,4 +128,5 @@ wide_calidad_aire <- wide_calidad_aire %>%
   )
 
 
-view(wide_calidad_aire)
+View(wide_calidad_aire)
+
