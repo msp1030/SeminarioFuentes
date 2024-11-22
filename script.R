@@ -118,6 +118,9 @@ wide_calidad_aire <- wide_calidad_aire %>%
 
 wide_calidad_aire <- group_by(.data = wide_calidad_aire, province, pollutant) %>% 
   dplyr::summarise(media_porcentaje = mean(porcentaje, na.rm = TRUE)) %>% 
+  ungroup() %>% 
+  group_by(province) %>% 
+  dplyr::summarise(airQ = mean(media_porcentaje, na.rm = TRUE)) %>% 
   ungroup()
 
 View(wide_calidad_aire)
