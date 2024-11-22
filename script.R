@@ -22,18 +22,6 @@ As = 6
 Cd = 5
 Ni = 20
 B(a)P = 1
-# añadimos una columna con valor "Si" cuando excede el limite y "No" en caso contrario
-calidad_aire <- calidad_aire%>%
-  mutate(exceso_limite=case_when(
-    pollutant == "PM10" & media > 40 ~ "Sí"
-    pollutant == "PM2,5" & media > 25 ~ "Sí"
-    pollutant == "Pb" & media > 0,5 ~ "Sí"
-    pollutant == "AS" & media > 6 ~ "Sí"
-    pollutant == "Cd" & media > 5 ~ "Sí"
-    pollutant == "Ni" & media > 20 ~ "Sí"
-    pollutant == "B(a)P" & media > 1 ~ "Sí"
-    True ~"No"
-  ))
 '''
 
 calidad_aire <- airqES %>%
@@ -128,5 +116,8 @@ wide_calidad_aire <- wide_calidad_aire %>%
   )
 
 
-View(wide_calidad_aire)
+wide_calidad_aire <- group_by(.data = wide_calidad_aire, province, pollutant) %>% 
+  dplyr::summarise(media_porcentaje = mean(porcentaje, na.rm = TRUE)) %>% 
+  ungroup()
 
+View(wide_calidad_aire)
