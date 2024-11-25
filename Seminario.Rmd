@@ -32,7 +32,7 @@ library(tidyverse)
 
 Los datos de las zonas verdes se encuentran en formato PC-AXIS, por lo que se emplea el paquete `pxR` para leer los datos.
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 zonas_verdes <- read.px("data/zonas_verdes.px")$DATA
 zonas_verdes_df <- zonas_verdes$value
 zonas_verdes_df<-zonas_verdes_df[-c(1,2,3,4,5), ]#eliminamos las filas 1, 2, 3, 4 y 5
@@ -43,7 +43,7 @@ zonas_verdes_df
 
 Los datos de Alzheimer, al igual que los datos de zonas verdes se encuentran en formato PC-AXIS, por lo que se emplea el paquete `pxR` para leer los datos.
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 alzheimer <- read.px("data/alzheimer_total.px")$DATA
 alzheimer_df<-alzheimer$value
 alzheimer_df<-alzheimer_df[,-c(1,2)]#eliminamos las columnas 1 y 2 
@@ -54,26 +54,26 @@ alzheimer_df
 
 La tabla con los datos de la Calidad del Aire se encuentra cargada por el paquete `airqES`.
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 data("airqES")
 ```
 
 ## Modificación y Creación de las Tablas
 
 ### Modificación de Zonas Verdes
-```{r}
+```{r, message=FALSE, warning=FALSE}
 
 ```
 
 ### Modificación de Alzheimer
-```{r}
+```{r, message=FALSE, warning=FALSE}
 
 ```
 
 ### Modificación de Calidad del Aire
 La primera modificación de los datos es filtrar por el año de interés, en este caso 2018, y hacer la media de los dias de cada mes para cada estación.
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 calidad_aire <- airqES %>%
   filter(year == 2018) %>%
   mutate(media_mensual = apply(.[, c(8:38)], 1, mean, na.rm = TRUE))%>%
@@ -82,7 +82,7 @@ calidad_aire <- airqES %>%
 
 Luego, se establecen los meses y provincias por su nombre en lugar de números.
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 meses<-c("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
          "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre")
 #remplazamos los meses en la tabla
@@ -92,7 +92,7 @@ calidad_aire$province<-provincia[calidad_aire$province]
 
 ```
 A continuación, se pivota para establecer los meses como atributos, y se hace la media de sus valores para obtener la media anual de cada estación.
-```{r}
+```{r, message=FALSE, warning=FALSE}
 wide_calidad_aire<-
   calidad_aire%>%
   pivot_wider(names_from = "month", values_from = "media_mensual")
@@ -104,7 +104,7 @@ wide_calidad_aire<-
 
 Se pasan las medidas de los contaminantes a porcentajes del valor límite.
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 wide_calidad_aire <-mutate(.data = wide_calidad_aire,
   porcentaje = case_when(
     !is.na(media_anual) & pollutant == "PM10" ~ (media_anual / 40) * 100,
@@ -119,9 +119,17 @@ wide_calidad_aire <-mutate(.data = wide_calidad_aire,
 ) %>% select(province:pollutant, porcentaje)
 ```
 
-```{r}
+```{r, message=FALSE, warning=FALSE}
 wide_calidad_aire <- group_by(.data = wide_calidad_aire, province, pollutant) %>% 
   dplyr::summarise(media_porcentaje = mean(porcentaje, na.rm = TRUE)) %>% 
+  ungroup()%>% 
+  group_by(province) %>% 
+  dplyr::summarise(airQ = mean(media_porcentaje, na.rm = TRUE)) %>% 
   ungroup()
 ```
-
+```{r, message = FALSE, warning = FALSE}
+ggplot(data = wide_calidad_aire, aes(x = province, y = airQ)) +
+  geom_col(aes(fill = airQ)) + 
+  xlab("Provincia") +
+  ylab("Porcentaje de la calidad del Aire")
+```
