@@ -85,21 +85,22 @@ wide_calidad_aire<-
 #quitamos los datos por meses
 wide_calidad_aire<-wide_calidad_aire[,-c(4:15)]
 
-#quitamos los datos a de ceuta, melilla y los de nivel nacional de alzheimer_xonas_verdes
+#quitamos los datos a de ceuta, melilla y los de nivel nacional de alzheimer_zonas_verdes
 
 
 
-
+'''
 view(wide_calidad_aire)
 view(alzheimer_df)
 view(wide_zonas_verdes)
+'''
 #eliminamos algunas columnas de valoracion
 wide_zonas_verdes<-wide_zonas_verdes[,-c(2:5)]
 
 alzheimer_zonas_verdes<-left_join(x = alzheimer_df, y = wide_zonas_verdes, by = c("Comunidades.y.Ciudades.Autónomas")) 
-view(alzheimer_zonas_verdes)
+#view(alzheimer_zonas_verdes)
 alzheimer_zonas_verdes<-alzheimer_zonas_verdes[-c(1),]
-view(alzheimer_zonas_verdes)
+#view(alzheimer_zonas_verdes)
 
 wide_calidad_aire <- wide_calidad_aire %>%
   mutate(
@@ -124,3 +125,6 @@ wide_calidad_aire <- group_by(.data = wide_calidad_aire, province, pollutant) %>
   ungroup()
 
 View(wide_calidad_aire)
+
+
+

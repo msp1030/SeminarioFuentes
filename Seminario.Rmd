@@ -61,14 +61,67 @@ data("airqES")
 ## Modificación y Creación de las Tablas
 
 ### Modificación de Zonas Verdes
+```{r}
+
+```
 
 ### Modificación de Alzheimer
+```{r}
+
+```
 
 ### Modificación de Calidad del Aire
+La primera modificación de los datos es filtrar por el año de interés, en este caso 2018, y hacer la media de los dias de cada mes para cada estación.
 
 ```{r}
 calidad_aire <- airqES %>%
-  filter(year == 2018) %>%#filtra el airqES para el año 2018
-  mutate(media_mensual = apply(.[, c(8:38)], 1, mean, na.rm = TRUE))%>%#creamos una columna llamada media_mensual, se calcula la media de las columnas 8-38 por cada fila (evitando los valores NA) 
-  select(month, province, station_id, pollutant, media_mensual)#se filtran las columnas month, province, station_id, pullutant y media_mensual
+  filter(year == 2018) %>%
+  mutate(media_mensual = apply(.[, c(8:38)], 1, mean, na.rm = TRUE))%>%
+  select(month, province, station_id, pollutant, media_mensual)
 ```
+
+Luego, se establecen los meses y provincias por su nombre en lugar de números.
+
+```{r}
+meses<-c("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
+         "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre")
+#remplazamos los meses en la tabla
+calidad_aire$month<-meses[calidad_aire$month]
+provincia = c("Alava", "Albacete", "Alicante", "Almeria", "Avila",  "Badajoz", "Baleares", "Barcelona", "Burgos", "Caceres", "Cadiz",  "Castellon", "Ciudad Real", "Cordoba", "Coruña", "Cuenca", "Girona", "Granada", "Guadalajara", "Gipuzkoa", "Huelva", "Huesca", "Jaen", "Leon", "Lleida", "Rioja", "Lugo", "Madrid", "Málaga", "Murcia", "Navarra", "Ourense", "Asturias", "Palencia", "Palmas", "Pontevedra", "Salamanca", "Santa_Cruz_de_Tenerife", "Cantabria", "Segovia", "Sevilla", "Soria", "Tarragona", "Teruel", "Toledo", "Valencia", "Valladolid", "Bizkaia", "Zamora", "Zaragoza")
+calidad_aire$province<-provincia[calidad_aire$province]
+
+```
+A continuación, se pivota para establecer los meses como atributos, y se hace la media de sus valores para obtener la media anual de cada estación.
+```{r}
+wide_calidad_aire<-
+  calidad_aire%>%
+  pivot_wider(names_from = "month", values_from = "media_mensual")
+
+wide_calidad_aire<-
+  wide_calidad_aire%>%
+  mutate(media_anual = apply(.[, c(4:15)], 1, mean, na.rm = TRUE)) %>% select(province:pollutant, media_anual)
+```
+
+Se pasan las medidas de los contaminantes a porcentajes del valor límite.
+
+```{r}
+wide_calidad_aire <-mutate(.data = wide_calidad_aire,
+  porcentaje = case_when(
+    !is.na(media_anual) & pollutant == "PM10" ~ (media_anual / 40) * 100,
+    !is.na(media_anual) & pollutant == "PM2.5" ~ (media_anual / 25) * 100,
+    !is.na(media_anual) & pollutant == "Pb" ~ (media_anual / 0.5) * 100,
+    !is.na(media_anual) & pollutant == "As" ~ (media_anual / 6) * 100,
+    !is.na(media_anual) & pollutant == "Cd" ~ (media_anual / 5) * 100,
+    !is.na(media_anual) & pollutant == "Ni" ~ (media_anual / 20) * 100,
+    !is.na(media_anual) & pollutant == "B(a)P" ~ (media_anual / 1) * 100,
+    TRUE ~ NA_real_
+  )
+) %>% select(province:pollutant, porcentaje)
+```
+
+```{r}
+wide_calidad_aire <- group_by(.data = wide_calidad_aire, province, pollutant) %>% 
+  dplyr::summarise(media_porcentaje = mean(porcentaje, na.rm = TRUE)) %>% 
+  ungroup()
+```
+
