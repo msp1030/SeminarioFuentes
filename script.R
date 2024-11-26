@@ -13,16 +13,6 @@ data("airqES")#carga el conjunto de datos con información sobre la calidad del 
 
 #Modificacion Tablas
 
-'''
-Valores Límites de los Contaminantes:
-PM10 = 40
-PM2,5 = 25
-Pb = 0,5
-As = 6
-Cd = 5
-Ni = 20
-B(a)P = 1
-'''
 
 calidad_aire <- airqES %>%
   filter(year == 2018) %>%#filtra el airqES para el año 2018
@@ -89,11 +79,7 @@ wide_calidad_aire<-wide_calidad_aire[,-c(4:15)]
 
 
 
-'''
-view(wide_calidad_aire)
-view(alzheimer_df)
-view(wide_zonas_verdes)
-'''
+
 #eliminamos algunas columnas de valoracion
 wide_zonas_verdes<-wide_zonas_verdes[,-c(2:5)]
 
@@ -124,7 +110,31 @@ wide_calidad_aire <- group_by(.data = wide_calidad_aire, province, pollutant) %>
   dplyr::summarise(airQ = mean(media_porcentaje, na.rm = TRUE)) %>% 
   ungroup()
 
-View(wide_calidad_aire)
-
-
+wide_calidad_aire$province
+provincias <- c("Alava", "Albacete", "Alicante", "Almeria", "Asturias", "Avila", "Badajoz", 
+                "Baleares", "Barcelona", "Bizkaia", "Burgos", "Caceres", "Cadiz", "Cantabria", 
+                "Castellon", "Ciudad Real", "Cordoba", "Coruña", "Cuenca", "Gipuzkoa", 
+                "Girona", "Granada", "Guadalajara", "Huelva", "Huesca", "Jaen", "Leon", 
+                "Lleida", "Lugo", "Madrid", "Malaga", "Murcia", "Navarra", "Ourense", 
+                "Palencia", "Palmas", "Pontevedra", "Rioja", "Salamanca", "Santa_Cruz_de_Tenerife", 
+                "Segovia", "Sevilla", "Soria", "Tarragona", "Teruel", "Toledo", "Valencia", 
+                "Valladolid", "Zamora", "Zaragoza","Málaga")
+comunidades <- c("País Vasco", "Castilla-La Mancha", "Comunidad Valenciana", "Andalucía", "Asturias",
+                 "Castilla y León", "Extremadura", "Islas Baleares", "Cataluña", "País Vasco", 
+                 "Castilla y León", "Extremadura", "Andalucía", "Cantabria", "Comunidad Valenciana", 
+                 "Castilla-La Mancha", "Andalucía", "Galicia", "Castilla-La Mancha", "País Vasco", 
+                 "Cataluña", "Andalucía", "Castilla-La Mancha", "Andalucía", "Aragón", "Andalucía", 
+                 "Castilla y León", "Cataluña", "Galicia", "Madrid", "Andalucía", "Murcia", 
+                 "Navarra", "Galicia", "Castilla y León", "Islas Canarias", "Galicia", "La Rioja", 
+                 "Castilla y León", "Islas Canarias", "Castilla y León", "Andalucía", "Castilla y León", 
+                 "Cataluña", "Aragón", "Castilla-La Mancha", "Comunidad Valenciana", 
+                 "Castilla y León", "Castilla y León", "Aragón","Andalucía")
+# Crear el dataframe de provincias y comunidades
+provincias_comunidades <- data.frame(
+  province = provincias,
+  comunidad_autonoma = comunidades
+)
+View(provincias_comunidades)
+calidad_aire_comunidades<-left_join(wide_calidad_aire,provincias_comunidades)
+View(calidad_aire_comunidades)
 
