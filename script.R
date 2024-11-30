@@ -1,8 +1,8 @@
 #paquetes
 library(airqualityES) #paquete para trabajar la calidad del aire en España
 library(tidyverse)#paquete para poder manipular y visualizar los datos
-library(pxR)
-library(dplyr)
+library(pxR) #paquete para trabajar con archivos .px
+library(dplyr) #paquete para operar con dataframes
 #carga de datos
 
 zonas_verdes <- read.px("data/zonas_verdes.px")$DATA#carga un archivo con datos sobre las zonas verdes
@@ -13,7 +13,7 @@ data("airqES")#carga el conjunto de datos con información sobre la calidad del 
 
 #Modificacion Tablas
 
-
+#filtrar y modificar los datos de 2018
 calidad_aire <- airqES %>%
   filter(year == 2018) %>%#filtra el airqES para el año 2018
   mutate(media_mensual = apply(.[, c(8:38)], 1, mean, na.rm = TRUE))%>%#creamos una columna llamada media_mensual, se calcula la media de las columnas 8-38 por cada fila (evitando los valores NA) 
@@ -24,25 +24,15 @@ calidad_aire <- airqES %>%
 zonas_verdes_df <- zonas_verdes$value
 zonas_verdes_df<-zonas_verdes_df[-c(1,2,3,4,5), ]#eliminamos las filas 1, 2, 3, 4 y 5
 
-
+#preparamos los datos de alzheimer
 alzheimer_df<-alzheimer$value
 alzheimer_df<-alzheimer_df[,-c(1,2)]#eliminamos las columnas 1 y 2 
-
-print(colnames(alzheimer_df))
-
 
 
 #pivotar zonas verdes
 wide_zonas_verdes<-
   zonas_verdes_df%>%
   pivot_wider(names_from = "Nivel.de.satisfacción", values_from = "value")
-
-
-
-
-#alzheimer_zonas_verdes<-left_join(x = alzheimer_df, y = wide_zonas_verdes, by = c("Comunidades.y.Ciudades.Autónomas")) 
-
-
 
 #creamos un vector con los nombres de los meses
 meses<-c("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
@@ -61,6 +51,7 @@ calidad_aire$province<-provincia[calidad_aire$province]
 
 print(calidad_aire)
 
+#pivotamos calidad del aire
 wide_calidad_aire<-
   calidad_aire%>%
   pivot_wider(names_from = "month", values_from = "media_mensual")
@@ -75,19 +66,15 @@ wide_calidad_aire<-
 #quitamos los datos por meses
 wide_calidad_aire<-wide_calidad_aire[,-c(4:15)]
 
-#quitamos los datos a de ceuta, melilla y los de nivel nacional de alzheimer_zonas_verdes
-
-
-
 
 #eliminamos algunas columnas de valoracion
 wide_zonas_verdes<-wide_zonas_verdes[,-c(2:5)]
 
 alzheimer_zonas_verdes<-left_join(x = alzheimer_df, y = wide_zonas_verdes, by = c("Comunidades.y.Ciudades.Autónomas")) 
-#view(alzheimer_zonas_verdes)
-alzheimer_zonas_verdes<-alzheimer_zonas_verdes[-c(1),]
-#view(alzheimer_zonas_verdes)
 
+alzheimer_zonas_verdes<-alzheimer_zonas_verdes[-c(1),]
+
+#calculamos los porcentajes de los contaminantes
 wide_calidad_aire <- wide_calidad_aire %>%
   mutate(
     porcentaje = case_when(
@@ -102,7 +89,7 @@ wide_calidad_aire <- wide_calidad_aire %>%
     )
   )
 
-
+#agrupamos por provincia y contaminante y calculamos el promedio por provincia
 wide_calidad_aire <- group_by(.data = wide_calidad_aire, province, pollutant) %>% 
   dplyr::summarise(media_porcentaje = mean(porcentaje, na.rm = TRUE)) %>% 
   ungroup() %>% 
@@ -134,7 +121,11 @@ provincias_comunidades <- data.frame(
   province = provincias,
   comunidad_autonoma = comunidades
 )
-View(provincias_comunidades)
+#combinamos calidad del aire con las comunidades autónomas
 calidad_aire_comunidades<-left_join(wide_calidad_aire,provincias_comunidades)
-View(calidad_aire_comunidades)
 
+#calculamos la calidad del aire por comunidad autónoma
+airQ<- calidad_aire_comunidades%>%
+  group_by(comunidad_autonoma)%>%
+  dplyr::summarise(media_airQ=mean(airQ))
+view(airQ)
