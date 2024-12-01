@@ -5,9 +5,9 @@ library(pxR) #paquete para trabajar con archivos .px
 library(dplyr) #paquete para operar con dataframes
 #carga de datos
 
-zonas_verdes <- read.px("data/zonas_verdes.px")$DATA#carga un archivo con datos sobre las zonas verdes
+zonas_verdes <- read.px("INPUT/DATA/zonas_verdes.px")$DATA#carga un archivo con datos sobre las zonas verdes
 
-alzheimer <- read.px("data/alzheimer_total.px")$DATA#carga un achivo con datos sobre el alzheimer
+alzheimer <- read.px("INPUT/DATA/alzheimer_total.px")$DATA#carga un achivo con datos sobre el alzheimer
 
 data("airqES")#carga el conjunto de datos con información sobre la calidad del aire en España
 
@@ -42,12 +42,11 @@ calidad_aire$month<-meses[calidad_aire$month]
 
 
 #creamos un vector con los nombres de las provincias
-provincia = c("Alava","Albacete","Alicante","Almeria","Avila", "Badajoz", "Baleares", "Barcelona", "Burgos", "Caceres", "Cadiz", "Castellon","Ciudad Real","Cordoba","Coruña","Cuenca","Girona","Granada","Guadalajara","Gipuzkoa","Huelva","Huesca","Jaen","Leon","Lleida","Rioja","Lugo","Madrid","Málaga","Murcia","Navarra","Ourense","Asturias","Palencia","Palmas","Pontevedra","Salamanca","Santa_Cruz_de_Tenerife","Cantabria","Segovia","Sevilla","Soria","Tarragona","Teruel","Toledo","Valencia","Valladolid","Bizkaia","Zamora","Zaragoza")
 factor(provincias)
 
 
 
-calidad_aire$province<-provincia[calidad_aire$province]
+calidad_aire$province<-provincias[calidad_aire$province]
 
 print(calidad_aire)
 
@@ -70,7 +69,7 @@ wide_calidad_aire<-wide_calidad_aire[,-c(4:15)]
 #eliminamos algunas columnas de valoracion
 wide_zonas_verdes<-wide_zonas_verdes[,-c(2:5)]
 
-alzheimer_zonas_verdes<-left_join(x = alzheimer_df, y = wide_zonas_verdes, by = c("Comunidades.y.Ciudades.Autónomas")) 
+alzheimer_zonas_verdes<-left_join(x = alzheimer_df, y = wide_zonas_verdes, by = c("10 Comunitates.y.Ciudades.Autónomas")) 
 
 alzheimer_zonas_verdes<-alzheimer_zonas_verdes[-c(1),]
 
@@ -97,35 +96,35 @@ wide_calidad_aire <- group_by(.data = wide_calidad_aire, province, pollutant) %>
   dplyr::summarise(airQ = mean(media_porcentaje, na.rm = TRUE)) %>% 
   ungroup()
 
-wide_calidad_aire$province
+
 provincias <- c("Alava", "Albacete", "Alicante", "Almeria", "Asturias", "Avila", "Badajoz", 
                 "Baleares", "Barcelona", "Bizkaia", "Burgos", "Caceres", "Cadiz", "Cantabria", 
                 "Castellon", "Ciudad Real", "Cordoba", "Coruña", "Cuenca", "Gipuzkoa", 
                 "Girona", "Granada", "Guadalajara", "Huelva", "Huesca", "Jaen", "Leon", 
-                "Lleida", "Lugo", "Madrid", "Malaga", "Murcia", "Navarra", "Ourense", 
+                "Lleida", "Lugo", "Madrid", "Málaga", "Murcia", "Navarra", "Ourense", 
                 "Palencia", "Palmas", "Pontevedra", "Rioja", "Salamanca", "Santa_Cruz_de_Tenerife", 
                 "Segovia", "Sevilla", "Soria", "Tarragona", "Teruel", "Toledo", "Valencia", 
-                "Valladolid", "Zamora", "Zaragoza","Málaga")
-comunidades <- c("País Vasco", "Castilla-La Mancha", "Comunidad Valenciana", "Andalucía", "Asturias",
-                 "Castilla y León", "Extremadura", "Islas Baleares", "Cataluña", "País Vasco", 
-                 "Castilla y León", "Extremadura", "Andalucía", "Cantabria", "Comunidad Valenciana", 
-                 "Castilla-La Mancha", "Andalucía", "Galicia", "Castilla-La Mancha", "País Vasco", 
-                 "Cataluña", "Andalucía", "Castilla-La Mancha", "Andalucía", "Aragón", "Andalucía", 
-                 "Castilla y León", "Cataluña", "Galicia", "Madrid", "Andalucía", "Murcia", 
-                 "Navarra", "Galicia", "Castilla y León", "Islas Canarias", "Galicia", "La Rioja", 
-                 "Castilla y León", "Islas Canarias", "Castilla y León", "Andalucía", "Castilla y León", 
-                 "Cataluña", "Aragón", "Castilla-La Mancha", "Comunidad Valenciana", 
-                 "Castilla y León", "Castilla y León", "Aragón","Andalucía")
-# Crear el dataframe de provincias y comunidades
-provincias_comunidades <- data.frame(
+                "Valladolid", "Zamora", "Zaragoza")
+Comunidades <- c("16 País Vasco ", "08 Castilla-La Mancha", "10 Comunitat Valenciana", "01 Andalucía", "03 Asturias, Principado de",
+                 "07 Castilla y León", "11 Extremadura", "04, Baleares, Illes", "09 Cataluña", "16 País Vasco ", 
+                 "07 Castilla y León", "11 Extremadura", "01 Andalucía", "06 Cantabria", "10 Comunitat Valenciana", 
+                 "08 Castilla-La Mancha", "01 Andalucía", "12 Galicia", "08 Castilla-La Mancha", "16 País Vasco ", 
+                 "09 Cataluña", "01 Andalucía", "08 Castilla-La Mancha", "01 Andalucía", "02 Aragón", "01 Andalucía", 
+                 "07 Castilla y León", "09 Cataluña", "12 Galicia", "13 Madrid, Comunidad de", "01 Andalucía", "14 Murcia, Región de", 
+                 "15 Navarra, Comunidad Foral de", "12 Galicia", "07 Castilla y León", "Islas 05 Canarias", "12 Galicia", "17 Rioja, La", 
+                 "07 Castilla y León", "Islas 05 Canarias", "07 Castilla y León", "01 Andalucía", "07 Castilla y León", 
+                 "09 Cataluña", "02 Aragón", "08 Castilla-La Mancha", "10 Comunitat Valenciana", 
+                 "07 Castilla y León", "07 Castilla y León", "02 Aragón")
+# Crear el dataframe de provincias y 10 Comunitates
+provincias_10 Comunitates <- data.frame(
   province = provincias,
-  comunidad_autonoma = comunidades
+  10 Comunitat_autonoma = 10 Comunitates
 )
-#combinamos calidad del aire con las comunidades autónomas
-calidad_aire_comunidades<-left_join(wide_calidad_aire,provincias_comunidades)
+#combinamos calidad del aire con las 10 Comunitates autónomas
+calidad_aire_10 Comunitates<-left_join(wide_calidad_aire,provincias_10 Comunitates)
 
-#calculamos la calidad del aire por comunidad autónoma
-airQ<- calidad_aire_comunidades%>%
-  group_by(comunidad_autonoma)%>%
+#calculamos la calidad del aire por 10 Comunitat autónoma
+airQ<- calidad_aire_10 Comunitates%>%
+  group_by(10 Comunitat_autonoma)%>%
   dplyr::summarise(media_airQ=mean(airQ))
 view(airQ)

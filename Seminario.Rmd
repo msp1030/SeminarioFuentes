@@ -1,79 +1,106 @@
 ---
 title: "Relación entre Alzheimer y Calidad del Aire y Zonas Verdes"
-author: "Manuel Sánchez Paredes y Santiago Herrero Ruipérez"
-date: "`r Sys.Date()`"
-output: 
+author:
+- name: "Manuel Sánchez Paredes y Santiago Herrero Ruipérez"
+  affiliation: "Universidad de Burgos, Ingeniería de la Salud"
+date: "2 de Diciembre 2024"
+output:
   html_document:
+    df_print: paged
+    theme: united
     toc: true
     toc_float: true
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+### [Repositorio](https://github.com/msp1030/SeminarioFuentes)
 
-# Introducción
 
-En este seminario se va a estudiar la relación entre la calidad del aire y las zonas verdes en poblaciones y el Alzheimer.
+<div>
+<p style = text-align:center>
+<img src= INPUT/IMAGES/alzheimer.jpg width="400" height="auto">
+</p>
+</div>
 
-Los datos respecto al Alzheimer y a las zonas verdes se han obtenido del Instututo Nacional de Estadística (INE), mientras que los datos de la calidad del aire se han obtenido mediante el paquete `airqES` del proyecto `ROpenSpain`.
+<div style="text-align: justify">
 
-## Carga de Librerías empleadas
+# 1. Introducción
 
-```{r, message=FALSE, warning=FALSE}
+
+El Alzheimer es una enfermedad neurodegenerativa de la que no se conoce con certeza sus orígenes y causas. Este trabajo busca explorar la posible relación entre factores ambientales como las zonas verdes o la calidad del aire con esta enfermdedad.
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
 library(airqualityES)
 library(pxR)
 library(tidyverse)
+library(DT)
+library(ggrepel)
 ```
+# 2. Objetivo General
 
-## Carga de Datos
+El objetivo general de este trabajo es analizar si la baja calidad del aire y la escasez de zonas verdes en el entorno influye en la presencia de Alzheimer.
 
-### Carga de Zonas Verdes
+# 3 Carga de Datos
 
-Los datos de las zonas verdes se encuentran en formato PC-AXIS, por lo que se emplea el paquete `pxR` para leer los datos.
+Los datos respecto al [Alzheimer](https://www.ine.es/jaxi/Datos.htm?tpx=51464) y a las [zonas verdes](https://www.ine.es/jaxi/Datos.htm?path=/t00/ICV/dim8/&file=82101.px#_tabs-tabla) se han obtenido del Instututo Nacional de Estadística (INE), mientras que los datos de la calidad del aire se han obtenido mediante el paquete `airqualiltyES` del proyecto [ROpenSpain](https://ropenspain.github.io/airqualityES/).
 
-```{r, message=FALSE, warning=FALSE}
-zonas_verdes <- read.px("data/zonas_verdes.px")$DATA
+## 3.1 Carga de Zonas Verdes
+
+Los datos de las zonas verdes se encuentran en formato PC-AXIS, por lo que se emplea el paquete `pxR` para leer los datos. Se modifica la tabla para eliminar filas a nivel nacional, se pivota 
+
+```{r message=FALSE, warning=FALSE}
+zonas_verdes <- read.px("INPUT/DATA/zonas_verdes.px")$DATA
 zonas_verdes_df <- zonas_verdes$value
-zonas_verdes_df<-zonas_verdes_df[-c(1,2,3,4,5), ]#eliminamos las filas 1, 2, 3, 4 y 5
-zonas_verdes_df
+zonas_verdes_df<-zonas_verdes_df[-c(1,2,3,4,5), ]
+wide_zonas_verdes<-
+  zonas_verdes_df%>%
+  rename(Comunidades = Comunidades.y.Ciudades.Autónomas) %>% 
+  pivot_wider(names_from = "Nivel.de.satisfacción", values_from = "value") %>% 
+  rename(Valoracion_media = "Valoración media")
+wide_zonas_verdes<-wide_zonas_verdes[,-c(2:5)]
 ```
 
-### Carga de Alzheimer
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+DT::datatable(wide_zonas_verdes)
+```
 
-Los datos de Alzheimer, al igual que los datos de zonas verdes se encuentran en formato PC-AXIS, por lo que se emplea el paquete `pxR` para leer los datos.
+<div>
+<p style = text-align:center>
+<img src= INPUT/IMAGES/mapa_zonas_verdes.png>
+</p>
+</div>
+
+## 3.2 Carga de Alzheimer
+
+Los datos de Alzheimer, al igual que los datos de zonas verdes se encuentran en formato PC-AXIS, por lo que se emplea el paquete `pxR` para leer los datos. Se modifica la tabla para eliminar las columnas innecesarias.
 
 ```{r, message=FALSE, warning=FALSE}
-alzheimer <- read.px("data/alzheimer_total.px")$DATA
+alzheimer <- read.px("INPUT/DATA/alzheimer_total.px")$DATA
 alzheimer_df<-alzheimer$value
-alzheimer_df<-alzheimer_df[,-c(1,2)]#eliminamos las columnas 1 y 2 
-alzheimer_df
+alzheimer_df<-alzheimer_df[,-c(1,2)] %>% 
+  rename(porcentaje_alzheimer = value, Comunidades = Comunidades.y.Ciudades.Autónomas)
 ```
 
-### Carga de Calidad del Aire
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+DT::datatable(alzheimer_df)
+```
+
+<div>
+<p style = text-align:center>
+<img src= INPUT/IMAGES/mapa_alzheimer.png>
+</p>
+</div>
+
+## 3.3 Carga de Calidad del Aire
 
 La tabla con los datos de la Calidad del Aire se encuentra cargada por el paquete `airqES`.
 
-```{r, message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE, include=FALSE}
 data("airqES")
 ```
 
-## Modificación y Creación de las Tablas
-
-### Modificación de Zonas Verdes
-```{r, message=FALSE, warning=FALSE}
-
-```
-
-### Modificación de Alzheimer
-```{r, message=FALSE, warning=FALSE}
-
-```
-
-### Modificación de Calidad del Aire
 La primera modificación de los datos es filtrar por el año de interés, en este caso 2018, y hacer la media de los dias de cada mes para cada estación.
 
-```{r, message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE}
 calidad_aire <- airqES %>%
   filter(year == 2018) %>%
   mutate(media_mensual = apply(.[, c(8:38)], 1, mean, na.rm = TRUE))%>%
@@ -82,16 +109,21 @@ calidad_aire <- airqES %>%
 
 Luego, se establecen los meses y provincias por su nombre en lugar de números.
 
-```{r, message=FALSE, warning=FALSE}
+```{r include=FALSE}
 meses<-c("Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", 
          "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre")
-#remplazamos los meses en la tabla
-calidad_aire$month<-meses[calidad_aire$month]
-provincia = c("Alava", "Albacete", "Alicante", "Almeria", "Avila",  "Badajoz", "Baleares", "Barcelona", "Burgos", "Caceres", "Cadiz",  "Castellon", "Ciudad Real", "Cordoba", "Coruña", "Cuenca", "Girona", "Granada", "Guadalajara", "Gipuzkoa", "Huelva", "Huesca", "Jaen", "Leon", "Lleida", "Rioja", "Lugo", "Madrid", "Málaga", "Murcia", "Navarra", "Ourense", "Asturias", "Palencia", "Palmas", "Pontevedra", "Salamanca", "Santa_Cruz_de_Tenerife", "Cantabria", "Segovia", "Sevilla", "Soria", "Tarragona", "Teruel", "Toledo", "Valencia", "Valladolid", "Bizkaia", "Zamora", "Zaragoza")
-calidad_aire$province<-provincia[calidad_aire$province]
+provincias = c("Alava", "Albacete", "Alicante", "Almeria", "Avila",  "Badajoz", "Baleares", "Barcelona", "Burgos", "Caceres", "Cadiz",  "Castellon", "Ciudad Real", "Cordoba", "Coruña", "Cuenca", "Girona", "Granada", "Guadalajara", "Gipuzkoa", "Huelva", "Huesca", "Jaen", "Leon", "Lleida", "Rioja", "Lugo", "Madrid", "Málaga", "Murcia", "Navarra", "Ourense", "Asturias", "Palencia", "Palmas", "Pontevedra", "Salamanca", "Santa_Cruz_de_Tenerife", "Cantabria", "Segovia", "Sevilla", "Soria", "Tarragona", "Teruel", "Toledo", "Valencia", "Valladolid", "Bizkaia", "Zamora", "Zaragoza")
 
 ```
+
+```{r, message=FALSE, warning=FALSE}
+str(meses)
+str(provincias)
+calidad_aire$month<-meses[calidad_aire$month]
+calidad_aire$province<-provincias[calidad_aire$province]
+```
 A continuación, se pivota para establecer los meses como atributos, y se hace la media de sus valores para obtener la media anual de cada estación.
+
 ```{r, message=FALSE, warning=FALSE}
 wide_calidad_aire<-
   calidad_aire%>%
@@ -113,13 +145,14 @@ wide_calidad_aire <-mutate(.data = wide_calidad_aire,
     !is.na(media_anual) & pollutant == "As" ~ (media_anual / 6) * 100,
     !is.na(media_anual) & pollutant == "Cd" ~ (media_anual / 5) * 100,
     !is.na(media_anual) & pollutant == "Ni" ~ (media_anual / 20) * 100,
-    !is.na(media_anual) & pollutant == "B(a)P" ~ (media_anual / 1) * 100,
-    TRUE ~ NA_real_
+    !is.na(media_anual) & pollutant == "B(a)P" ~ (media_anual / 1) * 100
   )
 ) %>% select(province:pollutant, porcentaje)
 ```
 
-```{r, message=FALSE, warning=FALSE}
+Se hace la media de los valores de cada contaminante dentro de una misma provincia, y luego se juntan los valores de los contaminantes.
+
+```{r message=FALSE, warning=FALSE}
 wide_calidad_aire <- group_by(.data = wide_calidad_aire, province, pollutant) %>% 
   dplyr::summarise(media_porcentaje = mean(porcentaje, na.rm = TRUE)) %>% 
   ungroup()%>% 
@@ -127,9 +160,174 @@ wide_calidad_aire <- group_by(.data = wide_calidad_aire, province, pollutant) %>
   dplyr::summarise(airQ = mean(media_porcentaje, na.rm = TRUE)) %>% 
   ungroup()
 ```
-```{r, message = FALSE, warning = FALSE}
-ggplot(data = wide_calidad_aire, aes(x = province, y = airQ)) +
-  geom_col(aes(fill = airQ)) + 
-  xlab("Provincia") +
-  ylab("Porcentaje de la calidad del Aire")
+
+Finalmente, se agrupan los valores en cada comunidad autónoma empleando un dataframe con las provincias y las comunidades.
+
+```{r include=FALSE}
+Comunidades <- c("16 País Vasco", "08 Castilla - La Mancha", "10 Comunitat Valenciana", "01 Andalucía", "03 Asturias, Principado de",
+                 "07 Castilla y León", "11 Extremadura", "04 Balears, Illes", "09 Cataluña", "16 País Vasco", 
+                 "07 Castilla y León", "11 Extremadura", "01 Andalucía", "06 Cantabria", "10 Comunitat Valenciana", 
+                 "08 Castilla - La Mancha", "01 Andalucía", "12 Galicia", "08 Castilla - La Mancha", "16 País Vasco", 
+                 "09 Cataluña", "01 Andalucía", "08 Castilla - La Mancha", "01 Andalucía", "02 Aragón", "01 Andalucía", 
+                 "07 Castilla y León", "09 Cataluña", "12 Galicia", "13 Madrid, Comunidad de", "01 Andalucía", "14 Murcia, Región de", 
+                 "15 Navarra, Comunidad Foral de", "12 Galicia", "07 Castilla y León", "05 Canarias", "12 Galicia", "17 Rioja, La", 
+                 "07 Castilla y León", "05 Canarias", "07 Castilla y León", "01 Andalucía", "07 Castilla y León", 
+                 "09 Cataluña", "02 Aragón", "08 Castilla - La Mancha", "10 Comunitat Valenciana", 
+                 "07 Castilla y León", "07 Castilla y León", "02 Aragón")
+
 ```
+
+```{r message=FALSE, warning=FALSE}
+provincias_comunidades <- data.frame(
+  province = provincias,
+  comunidad_autonoma = Comunidades)
+```
+
+```{r message=FALSE, warning=FALSE}
+calidad_aire_comunidades<-left_join(wide_calidad_aire,provincias_comunidades)
+airQ<- calidad_aire_comunidades%>%
+  rename(Comunidades = comunidad_autonoma) %>% 
+  group_by(Comunidades)%>%
+  dplyr::summarise(media_airQ=mean(airQ))
+airQ$media_airQ <- 100- airQ$media_airQ
+```
+
+```{r echo=FALSE}
+DT::datatable(airQ)
+```
+
+En el siguiente gráfico se muestra la calidad del aire en cada comunidad autónoma.
+
+```{r, message = FALSE, warning = FALSE}
+grafico0 <- ggplot(data = airQ, aes(x = Comunidades, y = media_airQ)) +
+  geom_col(aes(fill = Comunidades), colour = "black") + 
+  xlab("") +
+  ylab("Porcentaje de la calidad del Aire") +
+  theme(axis.text.x = element_blank()) +
+  labs(fill = "Comunidad Autónoma", title = "Calidad del Aire")
+```
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggsave(
+  filename = "Calidad_Aire_Comunidad.jpeg",
+  plot = grafico0 ,
+  path = "OUTPUT/Figures")
+
+plot(grafico0)
+```
+
+# 4. Objetivos Específicos
+
+## 4.1 Relación entre Alzheimer y Zonas Verdes
+Se espera que a una mejor valoración de zonas verdes, el Alzheimer disminuya.
+
+```{r message=FALSE, warning=FALSE}
+alzheimer_zonas_verdes<-left_join(x = alzheimer_df, y = wide_zonas_verdes, by = c("Comunidades")) 
+
+alzheimer_zonas_verdes<-alzheimer_zonas_verdes[-c(1, 19, 20),]
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+DT::datatable(alzheimer_zonas_verdes)
+```
+
+
+```{r message=FALSE, warning=FALSE}
+grafico1 <- ggplot(alzheimer_zonas_verdes, aes(x = Valoracion_media, y = porcentaje_alzheimer)) +
+  geom_point(color = "steelblue", size = 3) +
+  geom_smooth(method = "lm", formula = y~poly(x, 3), color = "darkorange", se = TRUE) +
+  geom_text_repel(aes(label = Comunidades)) +
+  labs(title = "Relación entre porcentaje de Alzheimer y Valoración de Zonas Verdes",
+       x = "Valoración de las Zonas Verdes",
+       y = "Porcentaje de Alzheimer") +
+  theme_minimal()
+```
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggsave(
+  filename = "Alzheimer_Zonas_Verdes.jpeg",
+  plot = grafico1,
+  path = "OUTPUT/Figures")
+  
+plot(grafico1)
+```
+
+En la gráfica se puede observar que no hay una fuerte relación entre la percepción de la población de las zonas verdes y el porcentaje de Alzheimer en dicha población. Hay valores  de Alzheimer muy dispares para valoraciones similares de Zonas Verdes.
+
+## 4.2 Relación entre Calidad del Aire y Alzheimer
+Se espera que los resultados indiquen una relación entre ambas variables, con peor calidad del aire una mayor afectación de Alzheimer a la población.
+
+```{r message=FALSE, warning=FALSE}
+airQ_alzheimer <- left_join(airQ, alzheimer_df) 
+```
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+DT::datatable(airQ_alzheimer)
+```
+
+
+En la gráfica se observa una relación entre
+
+```{r message=FALSE, warning=FALSE}
+grafico2 <- ggplot(airQ_alzheimer, aes(x = media_airQ, y = porcentaje_alzheimer)) +
+  geom_point(color = "steelblue", size = 3) +
+  geom_smooth(method = "lm", formula = y~poly(x, 3), color = "darkorange", se = TRUE) +
+  geom_text_repel(aes(label = Comunidades)) +
+  labs(title = "Relación entre la calidad del aire y el porcentaje de Alzheimer",
+       x = "Porcentaje de la Calidad del Aire",
+       y = "Porcentaje de Alzheimer") +
+  theme_minimal()
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggsave(
+  filename = "Alzheimer_Calidad_del_Aire.jpeg",
+  plot = grafico2 ,
+  path = "OUTPUT/Figures")
+
+plot(grafico2)
+```
+
+Esta gráfica nos muestra, si se ignoran los valores extremos, una relación inversa entre la calidad del aire y el porcentaje de Alzheimer. La mayoría de comunidades, presenta menores porcentajes de Alzheimer ante mejor calidad del aire.
+
+## 4.3 Relación entre Calidad del Aire y Zonas Verdes
+Se espera que la gráfica nos muestre una relación positiva entre ambas variables.
+
+```{r message=FALSE, warning=FALSE}
+airQ_Zonas_Verdes <- left_join(airQ, wide_zonas_verdes) 
+```
+
+```{r message=FALSE, warning=FALSE}
+grafico3 <- ggplot(airQ_Zonas_Verdes, aes(x = media_airQ, y = Valoracion_media)) +
+  geom_point(color = "steelblue", size = 3) +
+  geom_smooth(method = "lm", formula = y~poly(x, 3), color = "darkorange", se = TRUE) +
+  geom_text_repel(aes(label = Comunidades)) +
+  labs(title = "Relación entre la calidad del aire y Valoración de Zonas Verdes",
+       x = "Porcentaje de la Calidad del Aire",
+       y = "Valoración de las Zonas Verdes") +
+  theme_minimal()
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggsave(
+  filename = "Zonas_Verdes_Calidad_del_Aire.jpeg",
+  plot = grafico3 ,
+  path = "OUTPUT/Figures")
+plot(grafico3)
+```
+
+En esta gráfica se puede observar que hay una relación directa entre ambas variables si exceptuamos los extremos. Se mantiene de forma general, que a mejor calidad del aire, la percepción de las zonas verdes por la población mejora.
+
+
+# 5. Conclusiones
+
+Las zonas verdes se valoran mejor cuanto mejor sea la calidad del aire de cada zona, aunque hay ciertos casos en los que no se cumple. Esto se puede deber a las diferencias entre las zonas verdes de diferentes regiones, ya que la calidad del aire es solo uno de los factores que pueden afectar.
+
+En cuanto a la relación entre la percepción de las zonas verdes y el Alzheimer, los valores son muy dispersos, y no indican una fuerte relación entre ambas variables. 
+
+La relación entre la calidad del aire y el Alzheimer es más clara, con una relación inversa. Ante mejor calidad del aire, el porcentaje de Alzheimer disminuye, aunque de nuevo hay ciertos casos en los que esto no se cumple. Esto se debe a que el Alzheimer es una enfermedad neurodegenerativa con múltiples factores y variables que pueden afectar a su desarrollo y aparición.
+
+# 6. Referencias
+
+- INE - Instituto Nacional de Estadística. (s. f.-a). INE. Instituto Nacional de Estadística. INE. https://www.ine.es/
+- Air Quality Measurements in Spain from 2011 to 2018. (s. f.). https://ropenspain.github.io/airqualityES/
+- Ministerio de Agricultura,Pesca y Alimentación. (s. f.). https://www.mapa.gob.es/es/
+- ¿Qué es el Alzheimer? (s. f.-b). Alzheimer’s Disease And Dementia. https://www.alz.org/alzheimer-demencia/que-es-la-enfermedad-de-alzheimer
+
